@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef } from 'react';
 
 interface ParticleSystemProps {
@@ -23,8 +25,15 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
       if (onParticlesCreated) {
         onParticlesCreated(particles);
       }
+
+      // Clean up function
+      return () => {
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '';
+        }
+      };
     }
-  }, [active, count, onParticlesCreated]);
+  }, [active, count]); // Remove onParticlesCreated from dependencies
   
   // Function to create particle elements
   const createParticles = (container: HTMLElement, count: number): HTMLDivElement[] => {

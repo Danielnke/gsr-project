@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Section from '../../shared/Section';
 import DischargeAnimation from './DischargeAnimation';
 import PhaseText from './PhaseText';
 
-// Register the ScrollTrigger plugin
-gsap.registerPlugin(ScrollTrigger);
+// Register the ScrollTrigger plugin only on the client side
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /**
  * Section 3: Chemical Transformation During Discharge
@@ -26,10 +28,10 @@ const Section3_Discharge: React.FC = () => {
   const [animationPhase, setAnimationPhase] = useState(0);
   const [animationPlayed, setAnimationPlayed] = useState(false);
   
-  // Handle phase changes from the animation component
-  const handlePhaseChange = (phase: number) => {
+  // Handle phase changes from the animation component - memoized to prevent unnecessary re-renders
+  const handlePhaseChange = useCallback((phase: number) => {
     setAnimationPhase(phase);
-  };
+  }, []);
   
   // Set up scroll trigger for the animation
   useEffect(() => {
@@ -47,8 +49,10 @@ const Section3_Discharge: React.FC = () => {
         }
       },
       onLeaveBack: () => {
-        animationRef.current.reset();
-        setAnimationPlayed(false);
+        if (animationPlayed) {
+          animationRef.current.reset();
+          setAnimationPlayed(false);
+        }
       }
     });
     
@@ -56,7 +60,7 @@ const Section3_Discharge: React.FC = () => {
     return () => {
       scrollTrigger.kill();
     };
-  }, [animationPlayed]);
+  }, []); // Empty dependency array to ensure this only runs once
 
   return (
     <Section id="discharge" className="bg-primary/10 relative">

@@ -2,7 +2,13 @@
 
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ParticleSystem from './ParticleSystem';
+
+// Register ScrollTrigger plugin
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface DischargeAnimationProps {
   onPhaseChange: (phase: number) => void;
@@ -28,27 +34,39 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   const primerRef = useRef<SVGCircleElement>(null);
   const flashRef = useRef<SVGPathElement>(null);
   const propellantRef = useRef<SVGRectElement>(null);
+  const particlesRef = useRef<HTMLDivElement[] | null>(null);
   
   // State to track animation
   const [isActive, setIsActive] = useState(false);
-  const [particles, setParticles] = useState<HTMLDivElement[] | null>(null);
+  const [particlesReady, setParticlesReady] = useState(false);
   
   // Handle particles creation
   const handleParticlesCreated = (newParticles: HTMLDivElement[]) => {
-    setParticles(newParticles);
+    particlesRef.current = newParticles;
+    setParticlesReady(true);
   };
   
   // Main animation sequence
   useEffect(() => {
-    if (!isActive || !firingPinRef.current || !primerRef.current || 
-        !flashRef.current || !propellantRef.current || !particles) {
+    // Only proceed if active, elements exist, and particles are ready
+    if (!isActive || !particlesReady || !firingPinRef.current || !primerRef.current || 
+        !flashRef.current || !propellantRef.current) {
       return;
     }
+    
+    // Get particles from ref
+    const particles = particlesRef.current;
+    if (!particles) return;
+    
+    // Store the phase change function to avoid closure issues
+    const phaseChangeFn = onPhaseChange;
     
     // Create the main timeline
     const tl = gsap.timeline({
       paused: true,
-      onComplete: () => onPhaseChange(4) // Final phase
+      onComplete: () => {
+        if (phaseChangeFn) phaseChangeFn(4); // Final phase
+      }
     });
     
     // 1. Firing pin strikes primer
@@ -57,7 +75,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       y: 0,
       duration: 0.2,
       ease: 'power4.in',
-      onComplete: () => onPhaseChange(1)
+      onComplete: () => {
+        if (phaseChangeFn) phaseChangeFn(1);
+      }
     })
     
     // 2. Primer deforms and flash appears
@@ -74,7 +94,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       scale: 1.5,
       duration: 0.2,
       ease: 'power2.out',
-      onComplete: () => onPhaseChange(2)
+      onComplete: () => {
+        if (phaseChangeFn) phaseChangeFn(2);
+      }
     }, '-=0.05')
     
     // 4. Propellant ignites
@@ -91,7 +113,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       duration: 0.2,
       stagger: 0.01,
       ease: 'power1.out',
-      onComplete: () => onPhaseChange(3)
+      onComplete: () => {
+        if (phaseChangeFn) phaseChangeFn(3);
+      }
     })
     
     // 6. Particles disperse
@@ -119,18 +143,20 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
     return () => {
       tl.kill();
     };
-  }, [isActive, particles, onPhaseChange]);
+  }, [isActive, particlesReady]); // Only depend on boolean flags, not objects or functions
   
   // Activate the animation
   const activate = () => {
     setIsActive(true);
-    onPhaseChange(0); // Initial phase
+    if (onPhaseChange) onPhaseChange(0); // Initial phase
   };
   
   // Reset the animation
   const reset = () => {
     setIsActive(false);
-    onPhaseChange(0);
+    setParticlesReady(false); // Reset particles ready state
+    particlesRef.current = null; // Clear particles ref
+    if (onPhaseChange) onPhaseChange(0);
   };
   
   // Expose methods to parent component
