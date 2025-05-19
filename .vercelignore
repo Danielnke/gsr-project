@@ -1,0 +1,30 @@
+# Exclude development files
+**/*.md
+**/*.lock
+**/README.md
+**/CHANGELOG.md
+**/LICENSE
+
+# Exclude test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+**/test/
+**/tests/
+**/public/test-data/
+
+# Exclude development configs
+.eslintrc
+.prettierrc
+.editorconfig
+
+# Exclude git files
+.git/
+.gitignore
+
+# Exclude other unnecessary files
+.github/
+.vscode/
+**/.DS_Store
+**/node_modules/.cache/
