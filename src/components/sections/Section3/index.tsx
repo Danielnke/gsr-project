@@ -1,0 +1,96 @@
+"use client";
+
+import React, { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Section from '../../shared/Section';
+import DischargeAnimation from './DischargeAnimation';
+import PhaseText from './PhaseText';
+
+// Register the ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
+
+/**
+ * Section 3: Chemical Transformation During Discharge
+ * 
+ * This section visualizes the chemical reactions that occur during
+ * firearm discharge, including animations for firing pin, combustion,
+ * melting, and GSR particle formation.
+ */
+const Section3_Discharge: React.FC = () => {
+  // Refs for animation control
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<any>(null);
+  
+  // State to track animation phase
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const [animationPlayed, setAnimationPlayed] = useState(false);
+  
+  // Handle phase changes from the animation component
+  const handlePhaseChange = (phase: number) => {
+    setAnimationPhase(phase);
+  };
+  
+  // Set up scroll trigger for the animation
+  useEffect(() => {
+    if (!sectionRef.current || !animationRef.current) return;
+    
+    // Create scroll trigger
+    const scrollTrigger = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: 'top 60%',
+      end: 'bottom 40%',
+      onEnter: () => {
+        if (!animationPlayed) {
+          animationRef.current.activate();
+          setAnimationPlayed(true);
+        }
+      },
+      onLeaveBack: () => {
+        animationRef.current.reset();
+        setAnimationPlayed(false);
+      }
+    });
+    
+    // Clean up
+    return () => {
+      scrollTrigger.kill();
+    };
+  }, [animationPlayed]);
+
+  return (
+    <Section id="discharge" className="bg-primary/10 relative">
+      <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
+        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">Chemical Transformation During Discharge</h2>
+        
+        <p className="text-xl text-center mb-12 max-w-3xl mx-auto">
+          When a firearm is discharged, a rapid series of chemical reactions occurs under extreme heat and pressure.
+        </p>
+        
+        <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
+          {/* Animation Component */}
+          <DischargeAnimation 
+            ref={animationRef}
+            onPhaseChange={handlePhaseChange} 
+            className="w-full max-w-md"
+          />
+          
+          {/* Text Explanation */}
+          <PhaseText 
+            phase={animationPhase} 
+            className="w-full max-w-md"
+          />
+        </div>
+        
+        <div className="text-center mt-12 max-w-3xl mx-auto">
+          <p className="text-lg">During this process, temperatures can reach over 2,000u00b0C in milliseconds.</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            The rapid cooling of vaporized metals creates the characteristic spherical GSR particles.
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+export default Section3_Discharge;
