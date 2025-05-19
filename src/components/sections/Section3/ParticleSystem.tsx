@@ -21,19 +21,20 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
   // Create particles when the component becomes active
   useEffect(() => {
     if (active && containerRef.current) {
-      const particles = createParticles(containerRef.current, count);
+      const currentContainerRef = containerRef.current;
+      const particles = createParticles(currentContainerRef, count);
       if (onParticlesCreated) {
         onParticlesCreated(particles);
       }
 
       // Clean up function
       return () => {
-        if (containerRef.current) {
-          containerRef.current.innerHTML = '';
+        if (currentContainerRef) {
+          currentContainerRef.innerHTML = '';
         }
       };
     }
-  }, [active, count]); // Remove onParticlesCreated from dependencies
+  }, [active, count, onParticlesCreated]); // Added onParticlesCreated to dependencies
   
   // Function to create particle elements
   const createParticles = (container: HTMLElement, count: number): HTMLDivElement[] => {

@@ -30,10 +30,11 @@ const Section2_Ammunition: React.FC = () => {
       });
     }
     
+    const currentSectionRef = sectionRef.current;
     return () => {
       // Clean up animations
-      if (sectionRef.current) {
-        gsap.killTweensOf(sectionRef.current);
+      if (currentSectionRef) {
+        gsap.killTweensOf(currentSectionRef);
       }
     };
   }, []);
