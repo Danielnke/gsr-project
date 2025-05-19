@@ -1,0 +1,26 @@
+{
+  "$schema": "https://pnpm.io/schema/approved-packages.json",
+  "allowedBinaries": [],
+  "allowedDeprecatedVersions": {},
+  "allowedExtensions": [],
+  "allowedPackages": {
+    "@tailwindcss/oxide": {
+      "allowed": "*"
+    },
+    "@tsparticles/engine": {
+      "allowed": "*"
+    },
+    "react-tsparticles": {
+      "allowed": "*"
+    },
+    "sharp": {
+      "allowed": "*"
+    },
+    "tsparticles-engine": {
+      "allowed": "*"
+    },
+    "unrs-resolver": {
+      "allowed": "*"
+    }
+  }
+}
