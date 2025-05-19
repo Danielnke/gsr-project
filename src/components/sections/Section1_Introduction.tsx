@@ -27,7 +27,7 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
   const textRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [, setIsLoaded] = useState(false);
 
   useEffect(() => {
     // Mark component as loaded

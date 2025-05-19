@@ -143,7 +143,7 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
     return () => {
       tl.kill();
     };
-  }, [isActive, particlesReady]); // Only depend on boolean flags, not objects or functions
+  }, [isActive, particlesReady, onPhaseChange]); // Include onPhaseChange in dependencies
   
   // Activate the animation
   const activate = () => {
@@ -241,3 +241,6 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
 });
 
 export default DischargeAnimation;
+
+// Add display name
+DischargeAnimation.displayName = 'DischargeAnimation';

@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Section from '../../shared/Section';
-import DischargeAnimation from './DischargeAnimation';
+import DischargeAnimation, { DischargeAnimationRef } from './DischargeAnimation';
 import PhaseText from './PhaseText';
 
 // Register the ScrollTrigger plugin only on the client side
@@ -22,7 +22,8 @@ if (typeof window !== 'undefined') {
 const Section3_Discharge: React.FC = () => {
   // Refs for animation control
   const sectionRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<any>(null);
+  // Use the correct type for the ref
+  const animationRef = useRef<DischargeAnimationRef>(null);
   
   // State to track animation phase
   const [animationPhase, setAnimationPhase] = useState(0);
@@ -43,13 +44,13 @@ const Section3_Discharge: React.FC = () => {
       start: 'top 60%',
       end: 'bottom 40%',
       onEnter: () => {
-        if (!animationPlayed) {
+        if (!animationPlayed && animationRef.current) {
           animationRef.current.activate();
           setAnimationPlayed(true);
         }
       },
       onLeaveBack: () => {
-        if (animationPlayed) {
+        if (animationPlayed && animationRef.current) {
           animationRef.current.reset();
           setAnimationPlayed(false);
         }
@@ -60,7 +61,7 @@ const Section3_Discharge: React.FC = () => {
     return () => {
       scrollTrigger.kill();
     };
-  }, []); // Empty dependency array to ensure this only runs once
+  }, [animationPlayed]); // Include animationPlayed in dependencies
 
   return (
     <Section id="discharge" className="bg-primary/10 relative">

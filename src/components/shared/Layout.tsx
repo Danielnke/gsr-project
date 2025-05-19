@@ -6,15 +6,8 @@ interface LayoutProps {
   debug?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, debug = false }) => {
-  // We still define sections for potential future use, but we won't pass them to Navigation
-  const sections = [
-    { id: 'introduction', title: 'Intro' },
-    { id: 'ammunition', title: 'Ammunition' },
-    { id: 'discharge', title: 'Discharge' },
-    { id: 'dispersion', title: 'Dispersion' },
-    { id: 'conclusion', title: 'Conclusion' },
-  ];
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  // Sections definition removed as it's not being used
 
   return (
     <div className="min-h-screen flex flex-col">

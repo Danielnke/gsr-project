@@ -23,16 +23,6 @@ const Section4_Dispersion: React.FC = () => {
   const [animationPlayed, setAnimationPlayed] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
   
-  // Progress the animation phases
-  const progressAnimation = () => {
-    // Don't progress beyond phase 4
-    if (animationPhase < 4) {
-      setAnimationPhase(prev => prev + 1);
-    } else {
-      setAnimationPlayed(true);
-    }
-  };
-  
   // Handle manual phase navigation
   const setPhase = (phase: number) => {
     if (phase >= 0 && phase <= 4) {
@@ -226,7 +216,7 @@ const Section4_Dispersion: React.FC = () => {
         <div className="text-center mt-12 max-w-3xl mx-auto">
           <p className="text-lg">GSR particles typically travel up to 3-5 feet from the discharge point.</p>
           <p className="mt-4 text-sm text-muted-foreground">
-            The highest concentration is found on the shooter's hands, especially between the thumb and index finger.
+            The highest concentration is found on the shooter&apos;s hands, especially between the thumb and index finger.
           </p>
         </div>
       </div>

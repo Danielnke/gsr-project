@@ -1,5 +1,5 @@
-const { writeFileSync } = require('fs');
-const path = require('path');
+import { writeFileSync } from 'fs';
+import path from 'path';
 
 // List of packages that require build steps that should be pre-approved
 const allowedBuilds = [
