@@ -1,0 +1,20 @@
+/* Scroll animation styles */
+.scroll-section {
+  /* Ensure all sections are fully visible */
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  /* Add some spacing between sections */
+  margin-bottom: 2rem;
+}
+
+/* These classes are no longer used but kept for reference */
+.scroll-section.hidden {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.scroll-section.fade-out {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
