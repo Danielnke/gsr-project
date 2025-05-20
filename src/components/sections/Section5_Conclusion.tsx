@@ -128,7 +128,7 @@ const Section5_Conclusion: React.FC = () => {
   }, []); // Empty dependency array ensures this runs only once on mount
 
   return (
-    <Section id="conclusion" className="bg-black/80 relative overflow-hidden">
+    <Section id="conclusion" className="relative overflow-hidden">
       {/* Background particle effect - subtle, static particles */}
       <div className="absolute inset-0 opacity-20">
         {particles.map((style, i) => (

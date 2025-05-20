@@ -159,7 +159,7 @@ const Section4_Dispersion: React.FC = () => {
   }, [animationPhase]);
 
   return (
-    <Section id="dispersion" className="bg-secondary/10 relative">
+    <Section id="dispersion" className="relative">
       <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
         <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">Particle Dispersion & Deposition</h2>
         

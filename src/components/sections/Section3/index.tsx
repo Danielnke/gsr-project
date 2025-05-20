@@ -64,7 +64,7 @@ const Section3_Discharge: React.FC = () => {
   }, [animationPlayed]); // Include animationPlayed in dependencies
 
   return (
-    <Section id="discharge" className="bg-primary/10 relative">
+    <Section id="discharge" className="relative">
       <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
         <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">Chemical Transformation During Discharge</h2>
         

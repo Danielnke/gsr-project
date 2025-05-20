@@ -124,3 +124,14 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Ensure sections are transparent to show global background */
+section,
+.app-section { /* Or whatever class your sections use */
+  background-color: transparent !important; /* Ensure transparency */
+}
+/* Or, if sections are direct children of body or a main wrapper */
+body > section,
+main > section {
+    background-color: transparent !important;
+}

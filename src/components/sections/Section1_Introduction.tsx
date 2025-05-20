@@ -127,10 +127,10 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
     <Section id="introduction" className="relative overflow-hidden min-h-screen">
       <div 
         ref={sectionRef}
-        className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/10"
+        className="absolute inset-0" /* Removed background gradient */
         style={{ backgroundSize: '200% 200%', backgroundPosition: '0% 0%' }}
         aria-hidden="true"
-      />
+      ></div> {/* Ensure it's a div if it was self-closing before and had content/purpose beyond bg */}
       
       <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
         <h1 

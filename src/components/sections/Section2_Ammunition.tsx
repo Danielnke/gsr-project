@@ -27,7 +27,7 @@ const Section2_Ammunition: React.FC = () => {
   };
 
   return (
-    <Section id="ammunition" className="bg-secondary/5 relative">
+    <Section id="ammunition" className="relative">
       <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
         <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">Ammunition Components</h2>
         
