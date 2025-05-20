@@ -23,6 +23,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
     const currentContainer = containerRef.current; // Capture at the top
 
     if (active && currentContainer) {
+      console.log("ParticleSystem: Becoming active, creating particles");
       const particles = createParticles(currentContainer, count); // Use captured
       if (onParticlesCreated) {
         onParticlesCreated(particles);
@@ -42,6 +43,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
   const createParticles = (container: HTMLElement, count: number): HTMLDivElement[] => {
     // Clear existing particles
     container.innerHTML = '';
+    console.log("ParticleSystem: Cleared existing particles");
     
     const particleElements: HTMLDivElement[] = [];
     
@@ -71,7 +73,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
       container.appendChild(particle);
       particleElements.push(particle);
     }
-    
+    console.log("ParticleSystem: Created particle elements", particleElements);
     return particleElements;
   };
 

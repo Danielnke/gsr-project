@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
+import React, { useRef, useState } from 'react';
 import Section from '../shared/Section';
 import Hotspot from '../shared/Hotspot';
 

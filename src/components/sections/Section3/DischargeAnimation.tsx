@@ -42,14 +42,25 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   
   // Handle particles creation
   const handleParticlesCreated = (newParticles: HTMLDivElement[]) => {
+    console.log("DischargeAnimation: handleParticlesCreated called", newParticles);
     particlesRef.current = newParticles;
     setParticlesReady(true);
+    console.log("DischargeAnimation: particlesReady set to true");
   };
   
   // Main animation sequence
   useEffect(() => {
+    console.log("DischargeAnimation: Main animation useEffect triggered. State:", {
+      isActive,
+      particlesReady,
+      firingPinRef: !!firingPinRef.current,
+      primerRef: !!primerRef.current,
+      flashRef: !!flashRef.current,
+      propellantRef: !!propellantRef.current,
+      particles: particlesRef.current ? particlesRef.current.length : 0
+    });
     // Only proceed if active, elements exist, and particles are ready
-    if (!isActive || !particlesReady || !firingPinRef.current || !primerRef.current || 
+    if (!isActive || !particlesReady || !firingPinRef.current || !primerRef.current ||
         !flashRef.current || !propellantRef.current) {
       return;
     }
@@ -147,6 +158,7 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   
   // Activate the animation
   const activate = () => {
+    console.log("DischargeAnimation: activate() called");
     setIsActive(true);
     if (onPhaseChange) onPhaseChange(0); // Initial phase
   };

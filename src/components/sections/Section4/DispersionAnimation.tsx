@@ -202,7 +202,7 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
       {/* Particles container */}
       <div 
         ref={particlesContainerRef}
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-10"
       >
         {/* Particles */}
         {init && ( // Render Particles only after engine is initialized

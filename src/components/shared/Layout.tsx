@@ -26,12 +26,20 @@ const Layout: React.FC<LayoutProps> = ({ children, debug }) => {
   const [currentSectionId, setCurrentSectionId] = useState<string | null>(SECTIONS_CONFIG[0]?.id || null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const currentSectionIdRef = useRef(currentSectionId);
+
+  useEffect(() => {
+    currentSectionIdRef.current = currentSectionId;
+  }, [currentSectionId]);
 
   useEffect(() => {
     // Debug console log removed
     // if (debug) {
     //   console.log('[Layout] Rendering with debug mode:', debug);
     // }
+
+    // Capture sectionRefs.current for use in cleanup
+    const currentSectionRefsMap = sectionRefs.current;
 
     // Dynamically find section elements once children are rendered
     // This assumes children (the page content) will eventually render the sections
@@ -42,7 +50,7 @@ const Layout: React.FC<LayoutProps> = ({ children, debug }) => {
       SECTIONS_CONFIG.forEach(section => {
         const el = document.getElementById(section.id);
         if (el) {
-          sectionRefs.current.set(section.id, el);
+          currentSectionRefsMap.set(section.id, el);
         }
       });
 
@@ -61,9 +69,9 @@ const Layout: React.FC<LayoutProps> = ({ children, debug }) => {
           // Fallback if no section is >50% visible (e.g. during fast scroll)
           // Find the first intersecting entry from the top
           const firstVisible = entries.find(e => e.isIntersecting);
-          if (firstVisible && currentSectionId !== firstVisible.target.id && entries.every(e => e.intersectionRatio < 0.5)) {
-             // Check if currentSectionId is not already set to this to avoid loop if it's the only one < 50%
-            const currentIdx = SECTIONS_CONFIG.findIndex(s => s.id === currentSectionId);
+          if (firstVisible && currentSectionIdRef.current !== firstVisible.target.id && entries.every(e => e.intersectionRatio < 0.5)) {
+             // Check if currentSectionIdRef.current is not already set to this to avoid loop if it's the only one < 50%
+            const currentIdx = SECTIONS_CONFIG.findIndex(s => s.id === currentSectionIdRef.current);
             const firstVisibleIdx = SECTIONS_CONFIG.findIndex(s => s.id === firstVisible.target.id);
             if (firstVisibleIdx < currentIdx || currentIdx === -1) { // Only update if it's an earlier section or none is set
                  setCurrentSectionId(firstVisible.target.id);
@@ -76,7 +84,7 @@ const Layout: React.FC<LayoutProps> = ({ children, debug }) => {
         }
       );
 
-      sectionRefs.current.forEach(el => observerRef.current?.observe(el));
+      currentSectionRefsMap.forEach(el => observerRef.current?.observe(el));
     }, 100); // Delay to allow sections to render
 
     return () => {
@@ -84,7 +92,7 @@ const Layout: React.FC<LayoutProps> = ({ children, debug }) => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-      sectionRefs.current.clear();
+      currentSectionRefsMap.clear();
     };
   }, [debug, children]); // Re-run if children change, as sections might re-render
 

@@ -35,6 +35,9 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
     // Mark component as loaded
     setIsLoaded(true);
     
+    // Capture the current value of the ref for use in the effect and cleanup
+    const currentSectionElement = sectionRef.current;
+
     // Create a timeline for the animations
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
@@ -69,8 +72,8 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
       }
 
       // Optional: Add a subtle background animation
-      if (sectionRef.current) {
-        gsap.to(sectionRef.current, {
+      if (currentSectionElement) {
+        gsap.to(currentSectionElement, {
           backgroundPosition: '100% 100%',
           duration: 20,
           repeat: -1,
@@ -105,8 +108,8 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
     return () => {
       // Clean up animations
       tl.kill();
-      if (sectionRef.current) { // Check if current to prevent errors if component unmounts early
-        gsap.killTweensOf(sectionRef.current);
+      if (currentSectionElement) { // Use the captured value in cleanup
+        gsap.killTweensOf(currentSectionElement);
       }
     };
   }, [prefersReducedMotion]); // Added prefersReducedMotion to dependency array

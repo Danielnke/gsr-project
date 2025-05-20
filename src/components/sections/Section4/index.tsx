@@ -17,24 +17,21 @@ const Section4_Dispersion: React.FC = () => {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const progressIndicatorRef = useRef<HTMLDivElement>(null);
   const phaseButtonsRef = useRef<HTMLDivElement>(null);
-  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const autoPlayIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // State to track animation progress
   const [animationPhase, setAnimationPhase] = useState(0);
-  const [animationPlayed, setAnimationPlayed] = useState(false);
-  const [userInteracted, setUserInteracted] = useState(false);
-  const userInteractedRef = useRef(userInteracted);
+  // const [userInteracted, setUserInteracted] = useState(false); // No longer needed for auto-play logic
+  // const userInteractedRef = useRef(userInteracted); // No longer needed
 
-  useEffect(() => {
-    userInteractedRef.current = userInteracted;
-  }, [userInteracted]);
+  // useEffect(() => { // No longer needed
+  //   userInteractedRef.current = userInteracted;
+  // }, [userInteracted]);
   
   // Handle manual phase navigation
   const setPhase = (phase: number) => {
     if (phase >= 0 && phase <= 4) {
       setAnimationPhase(phase);
-      setUserInteracted(true);
+      // setUserInteracted(true); // No longer needed for auto-play logic
       
       // Highlight the selected button
       if (phaseButtonsRef.current) {
@@ -54,68 +51,24 @@ const Section4_Dispersion: React.FC = () => {
   useEffect(() => {
     if (!sectionRef.current || !progressBarRef.current || !progressIndicatorRef.current) return;
     
-    // Create scroll trigger for section visibility
-    const scrollTrigger = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top 60%',
-      end: 'bottom 40%',
-      onEnter: () => {
-        if (!animationPlayed && !userInteractedRef.current) {
-          // Start the animation sequence with a delay
-          autoPlayTimeoutRef.current = setTimeout(() => {
-            if (userInteractedRef.current) return; // Check again before starting
-            // Start with phase 0
-            setAnimationPhase(0);
-            
-            // Then progress through phases
-            autoPlayIntervalRef.current = setInterval(() => {
-              if (userInteractedRef.current) {
-                if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
-                return;
-              }
-              setAnimationPhase(prev => {
-                if (prev < 4) {
-                  return prev + 1;
-                } else {
-                  if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
-                  setAnimationPlayed(true);
-                  return prev;
-                }
-              });
-            }, 3000); // Progress every 3 seconds for better viewing
-          }, 500);
-        }
-      },
-      onLeaveBack: () => {
-        if (!userInteracted) {
-          setAnimationPhase(0);
-          setAnimationPlayed(false);
-        }
-      }
-    });
-    
-    // Create a scroll-based progress indicator
+    // Create a scroll-based progress indicator and phase controller
     const progressScrollTrigger = ScrollTrigger.create({
       trigger: sectionRef.current,
-      start: 'top 80%',
-      end: 'bottom 20%',
+      pin: sectionRef.current, // Pin the section
+      start: 'top top', // Start pinning when the top of the section hits the top of the viewport
+      end: '+=500%', // Pin for a scroll distance equivalent to 500% of viewport height (100% per phase)
       scrub: 0.5, // Smooth scrubbing effect
       onUpdate: (self) => {
         // Update progress indicator based on scroll position
         if (progressIndicatorRef.current) {
           gsap.to(progressIndicatorRef.current, {
             width: `${self.progress * 100}%`,
-            duration: 0.1,
+            duration: 0.1, // Keep duration low for responsiveness to scrub
           });
           
-          // If user scrolls, they have interacted.
-          if (!userInteractedRef.current) {
-            setUserInteracted(true);
-          }
-          
           // Scroll always updates the phase if it's different
-          const newPhase = Math.min(4, Math.floor(self.progress * 5));
-          if (newPhase !== animationPhase) {
+          const newPhase = Math.min(4, Math.floor(self.progress * 5)); // 5 phases (0-4)
+          if (newPhase !== animationPhase) { // Check current animationPhase from state
             setAnimationPhase(newPhase);
           }
         }
@@ -124,12 +77,9 @@ const Section4_Dispersion: React.FC = () => {
     
     // Clean up
     return () => {
-      scrollTrigger.kill();
       progressScrollTrigger.kill();
-      if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
-      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
     };
-  }, [animationPhase, animationPlayed, userInteracted]); // userInteracted is still needed here for the main logic flow
+  }, []); // Empty dependency array: setup ScrollTrigger once on mount
   
   // Animation for text content
   useEffect(() => {

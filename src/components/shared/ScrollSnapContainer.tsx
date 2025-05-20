@@ -19,7 +19,7 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
   const containerRef = useRef<HTMLDivElement>(null);
   // Add error handling for context
   const [contextError, setContextError] = useState<Error | null>(null);
-  const [currentSection, setCurrentSection] = useState('unknown');
+  // const [currentSection, setCurrentSection] = useState('unknown'); // Removed unused state
   
   // Try to use the context, but handle errors gracefully
   let contextState = fallbackState;
@@ -92,8 +92,7 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
         const sectionId = section.id || 'unknown';
 
         if (entry.isIntersecting) {
-          // Update local state
-          setCurrentSection(sectionId);
+          // Update local state - setCurrentSection(sectionId); // Removed as currentSection state is unused
           
           // Try to update context if available
           if (contextDispatch) {
