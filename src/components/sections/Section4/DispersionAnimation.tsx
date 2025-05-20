@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import Particles from "react-tsparticles";
-import { loadFull } from "tsparticles";
+import React, { useEffect, useRef, useState } from 'react';
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
+import type { Engine } from "@tsparticles/engine"; // Import Engine type
 import { gsap } from 'gsap';
 import { getParticleConfig } from './ParticleConfig';
 import SurfaceAnimation from './SurfaceAnimation';
@@ -16,12 +17,27 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
   const particlesContainerRef = useRef<HTMLDivElement>(null);
   const muzzleFlashRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
-  
-  // Initialize the tsParticles instance
-  const particlesInit = async (engine: any) => {
-    // Load the full tsParticles package
-    // Using 'any' type to bypass the type mismatch between tsparticles v2 and v3
-    await loadFull(engine);
+  const [init, setInit] = useState(false); // State to track engine initialization
+
+  // Initialize the tsParticles engine instance
+  useEffect(() => {
+    initParticlesEngine(async (engine: Engine) => { // Add Engine type
+      // console.log("Initializing particles engine in DispersionAnimation");
+      // await loadFull(engine); // if you are going to use `loadFull`, install the "tsparticles" package too.
+      await loadSlim(engine); // or `loadFull(engine)` if you installed the "tsparticles" package
+      // console.log("Particles engine loaded in DispersionAnimation");
+    }).then(() => {
+      // console.log("initParticlesEngine resolved in DispersionAnimation");
+      setInit(true);
+    }).catch((error: any) => { // Add any type for error for now
+      console.error("Error initializing particles engine in DispersionAnimation:", error);
+    });
+  }, []);
+
+  const particlesLoaded = async (container?: any): Promise<void> => { // container can be typed with Container from @tsparticles/engine if needed
+    // console.log("Particles container loaded in DispersionAnimation", container);
+    // You can add custom logic here if needed after particles are loaded
+    // This function is optional for basic setup with @tsparticles/react v3
   };
   
   // Animate the firearm and muzzle flash based on animation phase
@@ -190,12 +206,13 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
         className="absolute inset-0 z-0"
       >
         {/* Particles */}
-        <Particles
-          id="tsparticles"
-          init={particlesInit}
-          options={getParticleConfig(animationPhase)}
-          className="absolute inset-0"
-        />
+        {init && ( // Render Particles only after engine is initialized
+          <Particles
+            id="tsparticles-dispersion" // Ensure unique ID if multiple particle instances
+            options={getParticleConfig(animationPhase)}
+            className="absolute inset-0"
+          />
+        )}
       </div>
       
       {/* Surfaces for particle deposition */}

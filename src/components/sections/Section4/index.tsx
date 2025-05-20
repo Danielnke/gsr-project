@@ -199,17 +199,6 @@ const Section4_Dispersion: React.FC = () => {
             className="w-full max-w-md p-6 bg-white/10 backdrop-blur-sm rounded-xl shadow-lg transition-all duration-500"
           >
             <PhaseText animationPhase={animationPhase} />
-            
-            {/* Additional information that appears in later phases */}
-            {animationPhase >= 3 && (
-              <div className="mt-6 p-4 bg-black/20 rounded-lg text-sm">
-                <h4 className="font-semibold mb-2">Forensic Significance</h4>
-                <p>
-                  The pattern of GSR deposition can help forensic scientists determine firing distance, 
-                  shooter position, and distinguish between primary and secondary GSR transfer.
-                </p>
-              </div>
-            )}
           </div>
         </div>
         

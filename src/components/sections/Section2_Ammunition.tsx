@@ -10,19 +10,21 @@ const Section2_Ammunition: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   
   useEffect(() => {
-    // Animation for the section entry
-    if (sectionRef.current && svgRef.current) {
-      const tl = gsap.timeline({
+    const currentSection = sectionRef.current;
+    const currentSvg = svgRef.current;
+    let tl: gsap.core.Timeline | null = null;
+
+    if (currentSection && currentSvg) {
+      tl = gsap.timeline({
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: currentSection,
           start: 'top 80%',
           end: 'bottom 20%',
           toggleActions: 'play none none reverse',
         }
       });
       
-      // Animate the SVG parts
-      tl.from(svgRef.current, {
+      tl.from(currentSvg, {
         opacity: 0,
         scale: 0.9,
         duration: 0.8,
@@ -30,11 +32,14 @@ const Section2_Ammunition: React.FC = () => {
       });
     }
     
-    const currentSectionRef = sectionRef.current;
     return () => {
-      // Clean up animations
-      if (currentSectionRef) {
-        gsap.killTweensOf(currentSectionRef);
+      if (tl) {
+        tl.kill();
+      }
+      // Preserve original cleanup intent for the section itself,
+      // in case other tweens not managed by `tl` were applied to `currentSection`.
+      if (currentSection) {
+        gsap.killTweensOf(currentSection);
       }
     };
   }, []);

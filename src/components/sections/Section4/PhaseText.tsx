@@ -49,7 +49,7 @@ const PhaseText: React.FC<PhaseTextProps> = ({ animationPhase }) => {
           <p className="mt-2">Deposition patterns show:</p>
           <ul className="list-disc list-inside mt-1 space-y-1">
             <li>Highest concentration near the discharge point</li>
-            <li>Significant deposits on the shooter&apos;s hands</li>
+            <li>Significant deposits on the shooter&rsquo;s hands</li>
             <li>Decreasing concentration with distance</li>
             <li>Particles can travel up to 3-5 feet from the source</li>
           </ul>
@@ -67,7 +67,7 @@ const PhaseText: React.FC<PhaseTextProps> = ({ animationPhase }) => {
             <li>Firearm type and ammunition</li>
             <li>Time since discharge (particle degradation)</li>
           </ul>
-          <p className="mt-2 text-sm text-muted-foreground">The highest concentration of GSR is typically found in the web between the thumb and index finger of the shooter&apos;s hand.</p>
+          <p className="mt-2 text-sm text-muted-foreground">The highest concentration of GSR is typically found in the web between the thumb and index finger of the shooter&rsquo;s hand.</p>
         </>
       );
     default:

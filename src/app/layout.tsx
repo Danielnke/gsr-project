@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "@/components/shared/Providers"; // Restore Providers
+import TestReducer from "@/components/shared/TestReducer"; // Keep TestReducer for this step
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GSR Particle Formation Visualization",
-  description: "An interactive website visualizing Gunshot Residue (GSR) particle formation, discharge, and dispersion.",
+  title: "GSR Particle Formation Visualization", // Restore original title
+  description: "An interactive website visualizing Gunshot Residue (GSR) particle formation, discharge, and dispersion.", // Restore original description
 };
 
 export default function RootLayout({
@@ -27,7 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers>
+          {children} {/* Restore children */}
+        </Providers>
       </body>
     </html>
   );

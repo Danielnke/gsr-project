@@ -2,18 +2,54 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import '../../styles/scroll-animations.css';
+import { useAppContext } from '@/lib/context';
 
 interface ScrollSnapContainerProps {
   children: React.ReactNode;
   debug?: boolean;
 }
 
+// Fallback state to use if context fails
+const fallbackState = {
+  currentSection: 'unknown',
+  debug: false
+};
+
 const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, debug = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeSection, setActiveSection] = useState<string>('');
+  // Add error handling for context
+  const [contextError, setContextError] = useState<Error | null>(null);
+  const [currentSection, setCurrentSection] = useState('unknown');
+  
+  // Try to use the context, but handle errors gracefully
+  let contextState = fallbackState;
+  let contextDispatch: React.Dispatch<any> | null = null;
+  
+  try {
+    // Wrap this in try/catch to handle potential context errors
+    const context = useAppContext();
+    contextState = context.state;
+    contextDispatch = context.dispatch;
+    
+    // Debug logging
+    if (debug) {
+      console.log('[ScrollContainer] Successfully connected to AppContext', contextState);
+    }
+  } catch (error) {
+    // If context fails, log the error and use fallback state
+    console.error('[ScrollContainer] Error using AppContext:', error);
+    setContextError(error as Error);
+  }
 
   // Setup scroll animations with Intersection Observer
   useEffect(() => {
+    // Debug logging
+    if (debug) {
+      console.log('[ScrollContainer] Component mounted with debug:', debug);
+      console.log('[ScrollContainer] Context state:', contextState);
+      console.log('[ScrollContainer] Context error:', contextError);
+    }
+    
     const container = containerRef.current;
     if (!container) {
       if (debug) console.log('[ScrollContainer] Container ref is null');
@@ -53,12 +89,23 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         const section = entry.target as HTMLElement;
-        const sectionId = section.id;
+        const sectionId = section.id || 'unknown';
 
         if (entry.isIntersecting) {
-          // Just track which section is currently most visible
-          setActiveSection(sectionId);
-          if (debug) console.log(`[ScrollContainer] Section ${sectionId} is now visible`);
+          // Update local state
+          setCurrentSection(sectionId);
+          
+          // Try to update context if available
+          if (contextDispatch) {
+            try {
+              contextDispatch({ type: 'SET_CURRENT_SECTION', payload: sectionId });
+              if (debug) console.log(`[ScrollContainer] Updated context with section: ${sectionId}`);
+            } catch (error) {
+              console.error(`[ScrollContainer] Failed to dispatch section change:`, error);
+            }
+          } else if (debug) {
+            console.log(`[ScrollContainer] Section ${sectionId} is visible (context unavailable)`);
+          }
         }
       });
     };
@@ -70,7 +117,12 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
       if (debug) console.log('[ScrollContainer] Cleaning up observer');
       observer.disconnect();
     };
-  }, [debug]);
+  }, [debug, contextDispatch, contextState, contextError]);
+
+  // Show error UI if context failed
+  if (contextError && debug) {
+    console.warn('[ScrollContainer] Rendering with fallback state due to context error');
+  }
 
   return (
     <div 
@@ -86,7 +138,12 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
       {debug && (
         <div className="fixed top-0 right-0 bg-black/50 text-white p-2 z-50 text-xs">
           Scroll Debug Mode<br />
-          Active Section: {activeSection}
+          Active Section: {contextError ? currentSection : contextState.currentSection}
+          {contextError && (
+            <>
+              <br /><span className="text-red-400">Context Error: {contextError.message}</span>
+            </>
+          )}
         </div>
       )}
       {children}
