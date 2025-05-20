@@ -1,3 +1,6 @@
+body {
+  cursor: none;
+}
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../styles/scroll-animations.css";

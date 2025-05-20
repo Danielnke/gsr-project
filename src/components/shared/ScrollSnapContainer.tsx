@@ -135,7 +135,8 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
       }}
       data-testid="scroll-container"
     >
-      {debug && (
+      {/* Debug widget for ScrollSnapContainer removed */}
+      {/* {debug && (
         <div className="fixed top-0 right-0 bg-black/50 text-white p-2 z-50 text-xs">
           Scroll Debug Mode<br />
           Active Section: {contextError ? currentSection : contextState.currentSection}
@@ -145,7 +146,7 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
             </>
           )}
         </div>
-      )}
+      )} */}
       {children}
     </div>
   );

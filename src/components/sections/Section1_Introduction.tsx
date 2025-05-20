@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'; // Added import
 import Section from '../shared/Section';
 import { ArrowDown } from 'lucide-react';
 
@@ -28,6 +29,7 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
   const ctaRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [, setIsLoaded] = useState(false);
+  const prefersReducedMotion = usePrefersReducedMotion(); // Added hook
 
   useEffect(() => {
     // Mark component as loaded
@@ -36,46 +38,78 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
     // Create a timeline for the animations
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-    // Animate the title characters
-    if (titleRef.current) {
-      const chars = titleRef.current.querySelectorAll('.char');
-      tl.to(chars, { 
-        opacity: 1, 
-        y: 0, 
-        duration: 0.05,
-        stagger: 0.03,
-        delay: 0.5
-      });
-    }
+    if (!prefersReducedMotion) {
+      // Animate the title characters
+      if (titleRef.current) {
+        const chars = titleRef.current.querySelectorAll('.char');
+        tl.to(chars, {
+          opacity: 1,
+          y: 0,
+          duration: 0.05,
+          stagger: 0.03,
+          delay: 0.5
+        });
+      }
 
-    // Animate the paragraph
-    tl.to(textRef.current, { 
-      opacity: 1, 
-      y: 0, 
-      duration: 0.8 
-    }, "-=0.2")
-    .to(ctaRef.current, { 
-      opacity: 1, 
-      y: 0, 
-      duration: 0.6 
-    }, "-=0.2");
+      // Animate the paragraph
+      if (textRef.current) { // Ensure ref is current before animating
+        tl.to(textRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.8
+        }, "-=0.2");
+      }
+      
+      if (ctaRef.current) { // Ensure ref is current before animating
+        tl.to(ctaRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6
+        }, "-=0.2");
+      }
 
-    // Optional: Add a subtle background animation
-    if (sectionRef.current) {
-      gsap.to(sectionRef.current, {
-        backgroundPosition: '100% 100%',
-        duration: 20,
-        repeat: -1,
-        yoyo: true,
-        ease: 'none'
-      });
+      // Optional: Add a subtle background animation
+      if (sectionRef.current) {
+        gsap.to(sectionRef.current, {
+          backgroundPosition: '100% 100%',
+          duration: 20,
+          repeat: -1,
+          yoyo: true,
+          ease: 'none'
+        });
+      }
+    } else {
+      // If reduced motion is preferred, set elements to their final state directly
+      if (titleRef.current) {
+        const chars = titleRef.current.querySelectorAll('.char');
+        gsap.set(chars, { opacity: 1, y: 0 });
+      }
+      if (textRef.current) {
+        gsap.set(textRef.current, { opacity: 1, y: 0 });
+      }
+      if (ctaRef.current) {
+        gsap.set(ctaRef.current, { opacity: 1, y: 0 });
+      }
+      // No background animation if reduced motion is preferred,
+      // but ensure initial styles don't hide content.
+      // The inline styles already set opacity: 0, transform: 'translateY(20px)'
+      // So we need to override them here if motion is reduced.
+      if (textRef.current && textRef.current.style.opacity === '0') {
+         gsap.set(textRef.current, { opacity: 1, y: 0 });
+      }
+      if (ctaRef.current && ctaRef.current.style.opacity === '0') {
+         gsap.set(ctaRef.current, { opacity: 1, y: 0 });
+      }
     }
 
     return () => {
       // Clean up animations
       tl.kill();
+      if (sectionRef.current) { // Check if current to prevent errors if component unmounts early
+        gsap.killTweensOf(sectionRef.current);
+      }
     };
-  }, []);
+  }, [prefersReducedMotion]); // Added prefersReducedMotion to dependency array
 
   const handleContinue = () => {
     if (onContinue) {
@@ -84,7 +118,7 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
       // Default behavior: scroll to the next section
       const ammunitionSection = document.getElementById('ammunition');
       if (ammunitionSection) {
-        ammunitionSection.scrollIntoView({ behavior: 'smooth' });
+        ammunitionSection.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
       }
     }
   };

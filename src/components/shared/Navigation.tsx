@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 interface NavigationProps {
   sections: Array<{
@@ -12,6 +13,7 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ sections, debug = false }) => {
   const [activeSection, setActiveSection] = useState<string>('');
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   // Track the active section based on scroll position
   useEffect(() => {
@@ -69,7 +71,7 @@ const Navigation: React.FC<NavigationProps> = ({ sections, debug = false }) => {
     try {
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
         setActiveSection(id);
         if (debug) console.log(`[Navigation] Successfully scrolled to section: ${id}`);
       } else {
@@ -89,7 +91,7 @@ const Navigation: React.FC<NavigationProps> = ({ sections, debug = false }) => {
             <li key={section.id}>
               <button
                 onClick={() => scrollToSection(section.id)}
-                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeSection === section.id ? 'bg-primary text-white' : 'hover:bg-primary/10'}`}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeSection === section.id ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10'}`}
                 aria-label={`Scroll to ${section.title} section`}
                 data-section-id={section.id}
                 aria-current={activeSection === section.id ? 'true' : 'false'}
