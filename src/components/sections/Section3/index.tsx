@@ -13,7 +13,7 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * Section 3: Chemical Transformation During Discharge
+ * Section 3: Discharge Animation
  * 
  * This section visualizes the chemical reactions that occur during
  * firearm discharge, including animations for firing pin, combustion,
@@ -77,11 +77,7 @@ const Section3_Discharge: React.FC = () => {
   return (
     <Section id="discharge" className="relative">
       <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6 text-center">Chemical Transformation During Discharge</h2>
-        
-        <p className="text-xl text-center mb-12 max-w-3xl mx-auto">
-          When a firearm is discharged, a rapid series of chemical reactions occurs under extreme heat and pressure.
-        </p>
+        {/* Removed heading and description to focus on animation and other content */}
         
         <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
           {/* Animation Component */}
@@ -99,10 +95,7 @@ const Section3_Discharge: React.FC = () => {
         </div>
         
         <div className="text-center mt-12 max-w-3xl mx-auto">
-          <p className="text-lg">During this process, temperatures can reach over 2,000u00b0C in milliseconds.</p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            The rapid cooling of vaporized metals creates the characteristic spherical GSR particles.
-          </p>
+          <p className="text-lg">Temperatures during discharge can exceed 2,000°C, critical for forensic analysis of GSR particles.</p>
         </div>
       </div>
     </Section>

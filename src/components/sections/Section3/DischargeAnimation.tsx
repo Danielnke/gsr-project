@@ -124,27 +124,49 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       duration: 0.2,
       stagger: 0.01,
       ease: 'power1.out',
+      onStart: () => {
+        console.log("Starting particle animation", particles.length, "particles should become visible.");
+      },
       onComplete: () => {
+        console.log("Particle initial animation complete, moving to dispersion phase.");
         if (phaseChangeFn) phaseChangeFn(3);
       }
     })
     
-    // 6. Particles disperse
+    // 6. Particles disperse with initial transformation (sparkling effect)
     .to(particles, {
-      x: () => (Math.random() - 0.5) * 300,
-      y: () => (Math.random() - 0.5) * 300,
-      opacity: () => Math.random() * 0.7 + 0.3,
-      scale: () => Math.random() * 1.5 + 0.5,
-      duration: 1,
-      ease: 'power2.out'
+      x: () => (Math.random() - 0.5) * 400, // Increased range for more dramatic dispersion
+      y: () => (Math.random() - 0.5) * 400, // Increased range for more dramatic dispersion
+      opacity: () => Math.random() * 0.6 + 0.4, // Higher minimum opacity for visibility
+      scale: () => Math.random() * 2 + 0.8, // Larger scale variation for sparkling effect
+      rotation: () => Math.random() * 360, // Add rotation for dynamic effect
+      duration: 0.8, // Slightly shorter duration for quicker movement
+      ease: 'power3.out',
+      onStart: () => {
+        console.log("Dispersion animation started for", particles.length, "particles.");
+      }
     }, '-=0.1')
     
-    // 7. Some particles fade out (simulating cooling/settling)
+    // 7. Simulate chemical transformation with color change (heat effect)
+    .to(particles, {
+      backgroundColor: (i) => i % 2 === 0 ? '#ff6347' : '#ff3300', // Simulate heat/oxidation
+      duration: 0.3,
+      stagger: 0.01,
+      ease: 'power1.in',
+      onStart: () => {
+        console.log("Color transformation animation started for chemical heat effect.");
+      }
+    }, '+=0.2')
+    
+    // 8. Some particles fade out (simulating cooling/settling)
     .to(particles, {
       opacity: (i) => i % 3 === 0 ? 0 : Math.random() * 0.7 + 0.3,
       duration: 0.5,
       stagger: 0.01,
-      ease: 'power1.in'
+      ease: 'power1.in',
+      onStart: () => {
+        console.log("Cooling/settling animation started, some particles fading out.");
+      }
     }, '+=0.5');
     
     // Play the animation
@@ -191,55 +213,87 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       >
         <title id="discharge-animation-title">Firearm Discharge Animation</title>
         
-        {/* Cartridge Case (simplified) */}
+        {/* Add gradients for realism */}
+        <defs>
+          <linearGradient id="brassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#d4af37', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#b87333', stopOpacity: 1 }} />
+          </linearGradient>
+          <radialGradient id="primerGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" style={{ stopColor: '#777', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#555', stopOpacity: 1 }} />
+          </radialGradient>
+          <linearGradient id="propellantGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#333', stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: '#ff3300', stopOpacity: 1 }} />
+          </linearGradient>
+        </defs>
+        
+        {/* Cartridge Case with gradient */}
         <rect 
           x="150" 
           y="200" 
           width="100" 
           height="150" 
-          fill="#d4af37" 
+          fill="url(#brassGradient)" 
           stroke="#000" 
           strokeWidth="2"
         />
         
-        {/* Primer */}
+        {/* Primer with gradient */}
         <circle 
           ref={primerRef}
           cx="200" 
           cy="325" 
           r="25" 
-          fill="#777" 
+          fill="url(#primerGradient)" 
           stroke="#000" 
           strokeWidth="2"
         />
         
-        {/* Propellant */}
+        {/* Propellant with gradient effect */}
         <rect 
           ref={propellantRef}
           x="160" 
           y="210" 
           width="80" 
           height="100" 
-          fill="#333"
+          fill="url(#propellantGradient)"
         />
         
-        {/* Firing Pin */}
+        {/* Firing Pin with more detailed shape */}
         <path 
           ref={firingPinRef}
-          d="M200,380 L210,360 L190,360 Z" 
+          d="M200,380 L210,360 L205,355 L195,355 L190,360 Z" 
           fill="#555" 
           stroke="#000" 
           strokeWidth="2"
           transform="translate(-20, -20)"
         />
         
-        {/* Flash (initially invisible) */}
+        {/* Flash with glow effect */}
         <path 
           ref={flashRef}
           d="M180,300 L220,300 L230,280 L210,290 L200,270 L190,290 L170,280 L180,300 Z" 
           fill="#ff9900" 
           opacity="0"
+          filter="url(#glow)"
         />
+        
+        {/* Add a simple glow filter for flash */}
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+        
+        {/* Add subtle smoke effect (initially invisible) */}
+        <g opacity="0">
+          <circle cx="200" cy="250" r="10" fill="#888" opacity="0.5" />
+          <circle cx="210" cy="240" r="8" fill="#888" opacity="0.3" />
+          <circle cx="190" cy="260" r="12" fill="#888" opacity="0.4" />
+        </g>
       </svg>
       
       {/* Particle System */}

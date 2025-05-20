@@ -20,18 +20,16 @@ const Section4_Dispersion: React.FC = () => {
   
   // State to track animation progress
   const [animationPhase, setAnimationPhase] = useState(0);
-  // const [userInteracted, setUserInteracted] = useState(false); // No longer needed for auto-play logic
-  // const userInteractedRef = useRef(userInteracted); // No longer needed
+  const animationPhaseRef = useRef(animationPhase);
 
-  // useEffect(() => { // No longer needed
-  //   userInteractedRef.current = userInteracted;
-  // }, [userInteracted]);
-  
+  useEffect(() => {
+    animationPhaseRef.current = animationPhase;
+  }, [animationPhase]);
+
   // Handle manual phase navigation
   const setPhase = (phase: number) => {
     if (phase >= 0 && phase <= 4) {
       setAnimationPhase(phase);
-      // setUserInteracted(true); // No longer needed for auto-play logic
       
       // Highlight the selected button
       if (phaseButtonsRef.current) {
@@ -68,8 +66,17 @@ const Section4_Dispersion: React.FC = () => {
           
           // Scroll always updates the phase if it's different
           const newPhase = Math.min(4, Math.floor(self.progress * 5)); // 5 phases (0-4)
-          if (newPhase !== animationPhase) { // Check current animationPhase from state
+          if (newPhase !== animationPhaseRef.current) {
             setAnimationPhase(newPhase);
+          }
+          
+          // If the user has reached the end of the phases, allow scrolling to the next section
+          if (self.progress > 0.99 && newPhase === 4) {
+            // Slightly delay the unpinning to ensure the last phase is fully visible
+            setTimeout(() => {
+              progressScrollTrigger.disable(); // Disable pinning to allow real scroll
+              ScrollTrigger.refresh(); // Refresh ScrollTrigger to update positions
+            }, 500); // Delay to give user time to see the last phase
           }
         }
       }
@@ -79,8 +86,8 @@ const Section4_Dispersion: React.FC = () => {
     return () => {
       progressScrollTrigger.kill();
     };
-  }, []); // Empty dependency array: setup ScrollTrigger once on mount
-  
+  }, []); // Empty dependency array to avoid re-running effect unnecessarily
+
   // Animation for text content
   useEffect(() => {
     if (!textRef.current) return;
@@ -138,11 +145,7 @@ const Section4_Dispersion: React.FC = () => {
             <button
               key={phase}
               onClick={() => setPhase(phase)}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${
-                animationPhase === phase 
-                  ? 'bg-primary text-white scale-110 shadow-lg' 
-                  : 'bg-gray-700/40 text-gray-200 hover:bg-gray-700/60'
-              }`}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-md ${animationPhase === phase ? 'bg-primary text-white scale-110 shadow-lg' : 'bg-gray-700/40 text-gray-200 hover:bg-gray-700/60'}`}
               aria-label={`View phase ${phase + 1}`}
             >
               {phase + 1}
