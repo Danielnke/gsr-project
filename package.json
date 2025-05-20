@@ -34,11 +34,16 @@
     "eslint-config-next": "15.3.2",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "tempo-devtools": "^2.0.102"
   },
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["react", "react-dom", "@types/react"]
+      "ignoreMissing": [
+        "react",
+        "react-dom",
+        "@types/react"
+      ]
     }
   },
   "engines": {
