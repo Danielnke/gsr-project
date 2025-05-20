@@ -33,28 +33,33 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
       console.error("Error initializing particles engine in DispersionAnimation:", error);
     });
   }, []);
+
+  // Initial setup for elements, runs once on mount
+  useEffect(() => {
+    if (firearmRef.current && muzzleFlashRef.current && glowRef.current) {
+      gsap.set(firearmRef.current, {
+        opacity: 0,
+        x: -20
+      });
+      gsap.set(muzzleFlashRef.current, {
+        opacity: 0,
+        scale: 0
+      });
+      gsap.set(glowRef.current, {
+        opacity: 0,
+        scale: 0
+      });
+    }
+  }, []); // Empty dependency array ensures it runs only once
   
   // Animate the firearm and muzzle flash based on animation phase
   useEffect(() => {
-    if (!firearmRef.current || !muzzleFlashRef.current || !containerRef.current || !glowRef.current) return;
+    // Ensure particle engine is initialized and refs are available
+    if (!init || !firearmRef.current || !muzzleFlashRef.current || !containerRef.current || !glowRef.current) return;
     
     const tl = gsap.timeline();
     
-    // Initial setup
-    tl.set(firearmRef.current, { 
-      opacity: 0, 
-      x: -20 
-    });
-    
-    tl.set(muzzleFlashRef.current, { 
-      opacity: 0, 
-      scale: 0 
-    });
-    
-    tl.set(glowRef.current, {
-      opacity: 0,
-      scale: 0
-    });
+    // Initial setup has been moved to the new useEffect above
     
     // Phase 0: Show the firearm
     if (animationPhase >= 0) {
@@ -130,7 +135,7 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
     return () => {
       tl.kill();
     };
-  }, [animationPhase]);
+  }, [animationPhase, init]); // Add init to dependency array
 
   return (
     <div 

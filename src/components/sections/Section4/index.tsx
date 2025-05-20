@@ -17,11 +17,18 @@ const Section4_Dispersion: React.FC = () => {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const progressIndicatorRef = useRef<HTMLDivElement>(null);
   const phaseButtonsRef = useRef<HTMLDivElement>(null);
+  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoPlayIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // State to track animation progress
   const [animationPhase, setAnimationPhase] = useState(0);
   const [animationPlayed, setAnimationPlayed] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
+  const userInteractedRef = useRef(userInteracted);
+
+  useEffect(() => {
+    userInteractedRef.current = userInteracted;
+  }, [userInteracted]);
   
   // Handle manual phase navigation
   const setPhase = (phase: number) => {
@@ -53,29 +60,29 @@ const Section4_Dispersion: React.FC = () => {
       start: 'top 60%',
       end: 'bottom 40%',
       onEnter: () => {
-        if (!animationPlayed && !userInteracted) {
+        if (!animationPlayed && !userInteractedRef.current) {
           // Start the animation sequence with a delay
-          const timeout = setTimeout(() => {
+          autoPlayTimeoutRef.current = setTimeout(() => {
+            if (userInteractedRef.current) return; // Check again before starting
             // Start with phase 0
             setAnimationPhase(0);
             
             // Then progress through phases
-            const interval = setInterval(() => {
+            autoPlayIntervalRef.current = setInterval(() => {
+              if (userInteractedRef.current) {
+                if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
+                return;
+              }
               setAnimationPhase(prev => {
                 if (prev < 4) {
                   return prev + 1;
                 } else {
-                  clearInterval(interval);
+                  if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
                   setAnimationPlayed(true);
                   return prev;
                 }
               });
             }, 3000); // Progress every 3 seconds for better viewing
-            
-            return () => {
-              clearInterval(interval);
-              clearTimeout(timeout);
-            };
           }, 500);
         }
       },
@@ -101,13 +108,15 @@ const Section4_Dispersion: React.FC = () => {
             duration: 0.1,
           });
           
-          // If user hasn't manually interacted, update phase based on scroll
-          if (!userInteracted) {
-            // Map scroll progress to animation phases (0-4)
-            const newPhase = Math.min(4, Math.floor(self.progress * 5));
-            if (newPhase !== animationPhase) {
-              setAnimationPhase(newPhase);
-            }
+          // If user scrolls, they have interacted.
+          if (!userInteractedRef.current) {
+            setUserInteracted(true);
+          }
+          
+          // Scroll always updates the phase if it's different
+          const newPhase = Math.min(4, Math.floor(self.progress * 5));
+          if (newPhase !== animationPhase) {
+            setAnimationPhase(newPhase);
           }
         }
       }
@@ -117,8 +126,10 @@ const Section4_Dispersion: React.FC = () => {
     return () => {
       scrollTrigger.kill();
       progressScrollTrigger.kill();
+      if (autoPlayTimeoutRef.current) clearTimeout(autoPlayTimeoutRef.current);
+      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current);
     };
-  }, [animationPhase, animationPlayed, userInteracted]);
+  }, [animationPhase, animationPlayed, userInteracted]); // userInteracted is still needed here for the main logic flow
   
   // Animation for text content
   useEffect(() => {
