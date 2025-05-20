@@ -29,16 +29,10 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
     }).then(() => {
       // console.log("initParticlesEngine resolved in DispersionAnimation");
       setInit(true);
-    }).catch((error: any) => { // Add any type for error for now
+    }).catch((error: unknown) => { // Add any type for error for now
       console.error("Error initializing particles engine in DispersionAnimation:", error);
     });
   }, []);
-
-  const particlesLoaded = async (container?: any): Promise<void> => { // container can be typed with Container from @tsparticles/engine if needed
-    // console.log("Particles container loaded in DispersionAnimation", container);
-    // You can add custom logic here if needed after particles are loaded
-    // This function is optional for basic setup with @tsparticles/react v3
-  };
   
   // Animate the firearm and muzzle flash based on animation phase
   useEffect(() => {

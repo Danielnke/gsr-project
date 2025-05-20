@@ -10,7 +10,7 @@ type AppState = {
 };
 
 // Define the action types
-type AppAction =
+export type AppAction =
   | { type: 'SET_CURRENT_SECTION'; payload: string }
   | { type: 'TOGGLE_DEBUG' };
 

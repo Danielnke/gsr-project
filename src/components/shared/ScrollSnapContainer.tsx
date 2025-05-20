@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Dispatch } from 'react';
 import '../../styles/scroll-animations.css';
-import { useAppContext } from '@/lib/context';
+import { useAppContext, AppAction } from '@/lib/context';
 
 interface ScrollSnapContainerProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
   
   // Try to use the context, but handle errors gracefully
   let contextState = fallbackState;
-  let contextDispatch: React.Dispatch<any> | null = null;
+  let contextDispatch: Dispatch<AppAction> | null = null;
   
   try {
     // Wrap this in try/catch to handle potential context errors
@@ -38,9 +38,9 @@ const ScrollSnapContainer: React.FC<ScrollSnapContainerProps> = ({ children, deb
   } catch (error) {
     // If context fails, log the error and use fallback state
     console.error('[ScrollContainer] Error using AppContext:', error);
-    setContextError(error as Error);
+    // Delay the state update to the effect phase
+    queueMicrotask(() => setContextError(error as Error));
   }
-
   // Setup scroll animations with Intersection Observer
   useEffect(() => {
     // Debug logging
