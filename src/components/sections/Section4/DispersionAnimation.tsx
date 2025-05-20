@@ -20,6 +20,7 @@ const DispersionAnimation: React.FC<DispersionAnimationProps> = ({ animationPhas
   // Initialize the tsParticles instance
   const particlesInit = async (engine: any) => {
     // Load the full tsParticles package
+    // Using 'any' type to bypass the type mismatch between tsparticles v2 and v3
     await loadFull(engine);
   };
   
