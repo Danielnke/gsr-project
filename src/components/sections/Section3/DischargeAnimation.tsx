@@ -129,9 +129,9 @@ const DischargeAnimation = forwardRef<
     if (sparklesRef.current) {
       const sparkles = sparklesRef.current.children;
       sparklesTl.to(sparkles, {
-        opacity: (i) => 0.3 + Math.random() * 0.7,
-        scale: (i) => 0.8 + Math.random() * 0.5,
-        duration: (i) => 0.3 + Math.random() * 0.5,
+        opacity: (_i) => 0.3 + Math.random() * 0.7,
+        scale: (_i) => 0.8 + Math.random() * 0.5,
+        duration: (_i) => 0.3 + Math.random() * 0.5,
         stagger: 0.05,
         ease: "power1.inOut",
       });
@@ -222,7 +222,7 @@ const DischargeAnimation = forwardRef<
       // 8. Particles start forming and dispersing - BURST EFFECT
       .to(particles, {
         opacity: 1,
-        scale: (i) => 0.5 + Math.random() * 1.5, // Varied scale for more dynamic look
+        scale: (_i) => 0.5 + Math.random() * 1.5, // Varied scale for more dynamic look
         duration: 0.1, // Faster for burst effect
         stagger: 0.002, // Much faster stagger for burst effect
         ease: "power4.out",
@@ -252,7 +252,7 @@ const DischargeAnimation = forwardRef<
       .to(
         particles,
         {
-          backgroundColor: (i) => {
+          backgroundColor: (_i) => {
             // More varied colors for chemical transformation
             const colors = [
               "#ff6347",
@@ -263,7 +263,7 @@ const DischargeAnimation = forwardRef<
             ];
             return colors[Math.floor(Math.random() * colors.length)];
           },
-          boxShadow: (i) => {
+          boxShadow: (_i) => {
             const size = 2 + Math.random() * 6;
             const color = Math.random() > 0.5 ? "#ff6347" : "#ff3300";
             return `0 0 ${size}px ${color}`;
