@@ -35,6 +35,13 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   const flashRef = useRef<SVGPathElement>(null);
   const propellantRef = useRef<SVGRectElement>(null);
   const particlesRef = useRef<HTMLDivElement[] | null>(null);
+
+  // Refs for logging
+  const firingPinRefForLogging = useRef(firingPinRef);
+  const primerRefForLogging = useRef(primerRef);
+  const flashRefForLogging = useRef(flashRef);
+  const propellantRefForLogging = useRef(propellantRef);
+  const particlesRefForLogging = useRef(particlesRef);
   
   // State to track animation
   const [isActive, setIsActive] = useState(false);
@@ -42,23 +49,23 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   
   // Handle particles creation
   const handleParticlesCreated = (newParticles: HTMLDivElement[]) => {
-    console.log("DischargeAnimation: handleParticlesCreated called", newParticles);
+    console.log("DischargeAnimation: handleParticlesCreated called. newParticles:", newParticles);
     particlesRef.current = newParticles;
     setParticlesReady(true);
-    console.log("DischargeAnimation: particlesReady set to true");
+    console.log("DischargeAnimation: handleParticlesCreated - particlesReady set to true"); // Enhanced log
   };
   
   // Main animation sequence
   useEffect(() => {
-    console.log("DischargeAnimation: Main animation useEffect triggered. State:", {
-      isActive,
-      particlesReady,
-      firingPinRef: !!firingPinRef.current,
-      primerRef: !!primerRef.current,
-      flashRef: !!flashRef.current,
-      propellantRef: !!propellantRef.current,
-      particles: particlesRef.current ? particlesRef.current.length : 0
-    });
+    console.log("DischargeAnimation: Main animation useEffect triggered.");
+    console.log("DischargeAnimation useEffect: isActive", isActive);
+    console.log("DischargeAnimation useEffect: particlesReady", particlesReady);
+    console.log("DischargeAnimation useEffect: firingPinRef", firingPinRefForLogging.current.current);
+    console.log("DischargeAnimation useEffect: primerRef", primerRefForLogging.current.current);
+    console.log("DischargeAnimation useEffect: flashRef", flashRefForLogging.current.current);
+    console.log("DischargeAnimation useEffect: propellantRef", propellantRefForLogging.current.current);
+    console.log("DischargeAnimation useEffect: particlesRef", particlesRefForLogging.current.current);
+
     // Only proceed if active, elements exist, and particles are ready
     if (!isActive || !particlesReady || !firingPinRef.current || !primerRef.current ||
         !flashRef.current || !propellantRef.current) {
@@ -76,6 +83,7 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
     const tl = gsap.timeline({
       paused: true,
       onComplete: () => {
+        console.log('DischargeAnimation GSAP: Timeline completed');
         if (phaseChangeFn) phaseChangeFn(4); // Final phase
       }
     });
@@ -86,7 +94,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       y: 0,
       duration: 0.2,
       ease: 'power4.in',
+      onStart: () => console.log('DischargeAnimation GSAP: Firing pin animation started'),
       onComplete: () => {
+        console.log('DischargeAnimation GSAP: Firing pin animation completed');
         if (phaseChangeFn) phaseChangeFn(1);
       }
     })
@@ -96,7 +106,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       fill: '#ff6600',
       scale: 1.1,
       duration: 0.1,
-      ease: 'power2.out'
+      ease: 'power2.out',
+      onStart: () => console.log('DischargeAnimation GSAP: Primer animation started'),
+      onComplete: () => console.log('DischargeAnimation GSAP: Primer animation completed'),
     }, '-=0.05')
     
     // 3. Flash appears
@@ -105,7 +117,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       scale: 1.5,
       duration: 0.2,
       ease: 'power2.out',
+      onStart: () => console.log('DischargeAnimation GSAP: Flash animation started'),
       onComplete: () => {
+        console.log('DischargeAnimation GSAP: Flash animation completed');
         if (phaseChangeFn) phaseChangeFn(2);
       }
     }, '-=0.05')
@@ -114,7 +128,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
     .to(propellantRef.current, {
       fill: '#ff3300',
       duration: 0.3,
-      ease: 'power1.in'
+      ease: 'power1.in',
+      onStart: () => console.log('DischargeAnimation GSAP: Propellant animation started'),
+      onComplete: () => console.log('DischargeAnimation GSAP: Propellant animation completed'),
     }, '-=0.1')
     
     // 5. Particles start forming and dispersing
@@ -125,10 +141,10 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       stagger: 0.01,
       ease: 'power1.out',
       onStart: () => {
-        console.log("Starting particle animation", particles.length, "particles should become visible.");
+        console.log('DischargeAnimation GSAP: Particles initial animation started', particles.length, "particles should become visible.");
       },
       onComplete: () => {
-        console.log("Particle initial animation complete, moving to dispersion phase.");
+        console.log("DischargeAnimation GSAP: Particle initial animation complete, moving to dispersion phase.");
         if (phaseChangeFn) phaseChangeFn(3);
       }
     })
@@ -143,8 +159,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       duration: 0.8, // Slightly shorter duration for quicker movement
       ease: 'power3.out',
       onStart: () => {
-        console.log("Dispersion animation started for", particles.length, "particles.");
-      }
+        console.log('DischargeAnimation GSAP: Dispersion animation started for', particles.length, "particles.");
+      },
+      onComplete: () => console.log('DischargeAnimation GSAP: Dispersion animation completed'),
     }, '-=0.1')
     
     // 7. Simulate chemical transformation with color change (heat effect)
@@ -154,8 +171,9 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       stagger: 0.01,
       ease: 'power1.in',
       onStart: () => {
-        console.log("Color transformation animation started for chemical heat effect.");
-      }
+        console.log('DischargeAnimation GSAP: Color transformation animation started for chemical heat effect.');
+      },
+      onComplete: () => console.log('DischargeAnimation GSAP: Color transformation animation completed'),
     }, '+=0.2')
     
     // 8. Some particles fade out (simulating cooling/settling)
@@ -165,15 +183,19 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       stagger: 0.01,
       ease: 'power1.in',
       onStart: () => {
-        console.log("Cooling/settling animation started, some particles fading out.");
-      }
+        console.log('DischargeAnimation GSAP: Cooling/settling animation started, some particles fading out.');
+      },
+      onComplete: () => console.log('DischargeAnimation GSAP: Cooling/settling animation completed'),
     }, '+=0.5');
     
     // Play the animation
+    console.log("DischargeAnimation: GSAP timeline about to play. Animating particles:", particles); // Enhanced log
+    console.log('DischargeAnimation GSAP: Playing timeline');
     tl.play();
     
     // Clean up
     return () => {
+      console.log('DischargeAnimation useEffect: GSAP timeline cleanup');
       tl.kill();
     };
   }, [isActive, particlesReady, onPhaseChange]); // Include onPhaseChange in dependencies
@@ -187,6 +209,7 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   
   // Reset the animation
   const reset = () => {
+    console.log("DischargeAnimation: reset() called");
     setIsActive(false);
     setParticlesReady(false); // Reset particles ready state
     particlesRef.current = null; // Clear particles ref

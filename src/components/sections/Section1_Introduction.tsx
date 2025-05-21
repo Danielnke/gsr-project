@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react'; // Removed useState
 import { gsap } from 'gsap';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'; // Added import
 import Section from '../shared/Section';
@@ -28,13 +28,9 @@ const Section1_Introduction: React.FC<Section1Props> = ({ onContinue }) => {
   const textRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [, setIsLoaded] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion(); // Added hook
 
   useEffect(() => {
-    // Mark component as loaded
-    setIsLoaded(true);
-    
     // Capture the current value of the ref for use in the effect and cleanup
     const currentSectionElement = sectionRef.current;
 

@@ -72,12 +72,18 @@ const Section3_Discharge: React.FC = () => {
       console.log("Section3_Discharge: Cleaning up ScrollTrigger.");
       st.kill();
     };
-  }, []); // Using empty dependency array to run only on mount for now
+  }, [animationPlayed, animationRef]); // Added animationPlayed and animationRef
 
   return (
     <Section id="discharge" className="relative">
       <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
-        {/* Removed heading and description to focus on animation and other content */}
+        {/* Heading and Description */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold mb-4">The Discharge Process</h2>
+          <p className="text-lg max-w-2xl mx-auto">
+            Explore the rapid chemical and physical transformations that occur when a firearm is discharged, leading to the formation of Gunshot Residue (GSR).
+          </p>
+        </div>
         
         <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
           {/* Animation Component */}

@@ -21,15 +21,18 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
   // Create particles when the component becomes active
   useEffect(() => {
     const currentContainer = containerRef.current; // Capture at the top
+    console.log('ParticleSystem: useEffect triggered. active:', active, 'currentContainer:', currentContainer);
 
     if (active && currentContainer) {
       console.log("ParticleSystem: Becoming active, creating particles");
       const particles = createParticles(currentContainer, count); // Use captured
       if (onParticlesCreated) {
+        console.log("ParticleSystem: Calling onParticlesCreated with", particles.length, "particles:", particles);
         onParticlesCreated(particles);
       }
 
       return () => {
+        console.log("ParticleSystem: useEffect cleanup - clearing particles from container:", currentContainer);
         if (currentContainer) { // Use captured value
           currentContainer.innerHTML = '';
         }
@@ -41,6 +44,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
   
   // Function to create particle elements
   const createParticles = (container: HTMLElement, count: number): HTMLDivElement[] => {
+    console.log('ParticleSystem: createParticles called. Container:', container, 'Count:', count);
     // Clear existing particles
     container.innerHTML = '';
     console.log("ParticleSystem: Cleared existing particles");
@@ -50,7 +54,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
     // Create new particles
     for (let i = 0; i < count; i++) {
       const particle = document.createElement('div');
-      particle.className = 'absolute rounded-full opacity-0';
+      particle.className = 'absolute rounded-full'; // Removed opacity-0
       
       // Randomize particle properties
       const size = Math.random() * 8 + 2; // 2-10px
@@ -69,16 +73,16 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
       particle.style.backgroundColor = color;
-      particle.style.left = '50%';
-      particle.style.top = '50%';
+      particle.style.left = '50%'; // Start at center for explosion effect
+      particle.style.top = '50%';  // Start at center for explosion effect
       // Temporarily set opacity to 0.5 for debugging to check if particles are created
-      particle.style.opacity = '0.5';
+      particle.style.opacity = '0.5'; 
       
       // Add to container
       container.appendChild(particle);
       particleElements.push(particle);
     }
-    console.log("ParticleSystem: Created particle elements", particleElements);
+    console.log("ParticleSystem: Created particle elements array:", particleElements);
     return particleElements;
   };
 
