@@ -38,58 +38,42 @@ const Section3_Discharge: React.FC = () => {
 
   // Set up scroll trigger for the animation
   useEffect(() => {
-    console.log(
-      "Section3_Discharge: Component did mount and useEffect is running.",
-    );
-
-    // Temporarily simplified to debug if this useEffect runs at all
+    // Wait for refs to be available
     if (!sectionRef.current || !animationRef.current) {
-      console.log(
-        "Section3_Discharge: Refs not available on mount. sectionRef:",
-        sectionRef.current,
-        "animationRef:",
-        animationRef.current,
-      );
       return;
     }
-    console.log(
-      "Section3_Discharge: Refs ARE available. Setting up ScrollTrigger.",
-    );
 
+    // Create ScrollTrigger instance
     const st = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: "top 60%",
       end: "bottom 40%",
       onEnter: () => {
-        console.log(
-          "Section3_Discharge: ScrollTrigger onEnter. animationPlayed:",
-          animationPlayed,
-        );
         if (!animationPlayed && animationRef.current) {
-          console.log("Section3_Discharge: Activating animation.");
           animationRef.current.activate();
           setAnimationPlayed(true);
         }
       },
       onLeaveBack: () => {
-        console.log(
-          "Section3_Discharge: ScrollTrigger onLeaveBack. animationPlayed:",
-          animationPlayed,
-        );
         if (animationPlayed && animationRef.current) {
-          console.log("Section3_Discharge: Resetting animation.");
           animationRef.current.reset();
           setAnimationPlayed(false);
         }
       },
+      // Add markers for debugging if needed
+      // markers: true,
     });
-    console.log("Section3_Discharge: ScrollTrigger instance created:", st);
+
+    // Manually trigger the animation if the section is already in view on load
+    if (st.isActive && !animationPlayed && animationRef.current) {
+      animationRef.current.activate();
+      setAnimationPlayed(true);
+    }
 
     return () => {
-      console.log("Section3_Discharge: Cleaning up ScrollTrigger.");
       st.kill();
     };
-  }, []); // Using empty dependency array to run only on mount for now
+  }, [animationPlayed]); // Include animationPlayed in dependencies
 
   return (
     <Section id="discharge" className="relative">
