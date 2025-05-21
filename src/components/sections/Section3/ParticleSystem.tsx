@@ -83,7 +83,6 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
 
       // Enhanced glow effect based on color
       const glowSize = Math.floor(size * (Math.random() * 0.5 + 0.5));
-      const glowOpacity = Math.random() * 0.4 + 0.6; // 0.6-1.0 for stronger glow
 
       // Make red/orange particles glow more intensely
       if (color.includes("ff")) {
