@@ -75,18 +75,18 @@ const Section3_Discharge: React.FC = () => {
           </p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-8 md:items-start justify-center"> {/* Changed items-center to md:items-start */}
+        <div className="flex flex-col md:flex-row gap-8 md:items-center justify-center md:gap-12">
           {/* Animation Component */}
           <DischargeAnimation 
             ref={animationRef}
             onPhaseChange={handlePhaseChange} 
-            className="w-full max-w-md"
+            className="w-full"
           />
           
           {/* Text Explanation */}
           <PhaseText 
             phase={animationPhase} 
-            className="w-full max-w-md"
+            className="w-full"
           />
         </div>
         
