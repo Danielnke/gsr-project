@@ -3,12 +3,20 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import ParticleSystem from './ParticleSystem';
+import ParticleSystem, { Particle, animateParticles } from './ParticleSystem'; // Import Particle type and animateParticles
 
 // Register ScrollTrigger plugin
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+const ANIMATION_PHASES = {
+  IDLE: 0,
+  HEAT_BUILDUP: 1,
+  DISCHARGE: 2,
+  PARTICLE_DISPERSION: 3, // This might need to be adjusted based on ParticleSystem changes
+  COMPLETE: 4
+};
 
 interface DischargeAnimationProps {
   onPhaseChange: (phase: number) => void;
@@ -20,6 +28,60 @@ export interface DischargeAnimationRef {
   activate: () => void;
   reset: () => void;
 }
+
+/**
+ * Creates and returns a GSAP timeline for the heat buildup animation phase.
+ * This includes a pulsating glow on the primer and a vibration effect on the container.
+ * @param containerRef - Ref to the main animation container for vibration.
+ * @param primerRef - Ref to the primer SVG element for glow effects.
+ * @param onComplete - Callback function to execute when the heat buildup animation completes.
+ * @returns A GSAP timeline instance for the heat buildup animation.
+ */
+const animateHeatBuildup = (
+  containerRef: React.RefObject<HTMLDivElement | null>, 
+  primerRef: React.RefObject<SVGCircleElement | null>, 
+  onComplete: () => void
+) => {
+  const tl = gsap.timeline({ onComplete });
+
+  // Guard against null refs, though an upstream check in useEffect should prevent this.
+  if (!containerRef.current || !primerRef.current) {
+    console.warn("animateHeatBuildup: Refs not available, skipping animation.");
+    // Call onComplete immediately if refs are null, as the animation "effectively" completes.
+    // Consider if this is the desired behavior or if an error should be thrown/logged differently.
+    if (onComplete) onComplete();
+    return tl; // Return an empty timeline or handle as appropriate
+  }
+
+  // Pulsating Glow
+  tl.to(primerRef.current, {
+    filter: 'brightness(1.5) drop-shadow(0 0 10px rgba(255, 165, 0, 0.8))',
+      // fill is used instead of backgroundColor for SVG elements
+      fill: '#ff9500', 
+      duration: 0.3,
+      repeat: 3,
+      yoyo: true,
+      ease: 'power1.inOut'
+    })
+    // Intensify Glow
+    .to(primerRef.current, {
+      filter: 'brightness(2) drop-shadow(0 0 15px rgba(255, 255, 0, 0.9))',
+      fill: '#ffff00', // fill instead of backgroundColor
+      duration: 0.4,
+      ease: 'power2.in'
+    }, ">") // Start after the pulsating glow completes
+    // Vibration
+    .to(containerRef.current, {
+      x: '+=1',
+      y: '-=1',
+      duration: 0.05,
+      repeat: 7, // 4 pulses, so 8 movements (to and fro)
+      yoyo: true,
+      ease: 'power1.inOut'
+    }, "<"); // Start concurrently with the intensify glow
+  // Removed extra closing brace here
+  return tl;
+};
 
 /**
  * Component that handles the discharge animation sequence
@@ -34,47 +96,36 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
   const primerRef = useRef<SVGCircleElement>(null);
   const flashRef = useRef<SVGPathElement>(null);
   const propellantRef = useRef<SVGRectElement>(null);
-  const particlesRef = useRef<HTMLDivElement[] | null>(null);
+  const particleDataRef = useRef<Particle[] | null>(null); // Changed to store Particle data
+  const widespreadParticleEffectsContainerRef = useRef<HTMLDivElement | null>(null); // For the widespread particle container
 
-  // Refs for logging
-  const firingPinRefForLogging = useRef(firingPinRef);
-  const primerRefForLogging = useRef(primerRef);
-  const flashRefForLogging = useRef(flashRef);
-  const propellantRefForLogging = useRef(propellantRef);
-  const particlesRefForLogging = useRef(particlesRef);
-  
   // State to track animation
   const [isActive, setIsActive] = useState(false);
-  const [particlesReady, setParticlesReady] = useState(false);
+  const [particleDataReady, setParticleDataReady] = useState(false); // Renamed for clarity
   
-  // Handle particles creation
-  const handleParticlesCreated = (newParticles: HTMLDivElement[]) => {
-    console.log("DischargeAnimation: handleParticlesCreated called. newParticles:", newParticles);
-    particlesRef.current = newParticles;
-    setParticlesReady(true);
-    console.log("DischargeAnimation: handleParticlesCreated - particlesReady set to true"); // Enhanced log
+  // Handle particles data creation
+  const handleParticlesCreated = (newParticleData: Particle[]) => {
+    console.log("DischargeAnimation: handleParticlesCreated called with particle data:", newParticleData.length);
+    particleDataRef.current = newParticleData;
+    setParticleDataReady(true);
+    console.log("DischargeAnimation: handleParticlesCreated - particleDataReady set to true");
   };
   
   // Main animation sequence
   useEffect(() => {
     console.log("DischargeAnimation: Main animation useEffect triggered.");
     console.log("DischargeAnimation useEffect: isActive", isActive);
-    console.log("DischargeAnimation useEffect: particlesReady", particlesReady);
-    console.log("DischargeAnimation useEffect: firingPinRef", firingPinRefForLogging.current.current);
-    console.log("DischargeAnimation useEffect: primerRef", primerRefForLogging.current.current);
-    console.log("DischargeAnimation useEffect: flashRef", flashRefForLogging.current.current);
-    console.log("DischargeAnimation useEffect: propellantRef", propellantRefForLogging.current.current);
-    console.log("DischargeAnimation useEffect: particlesRef", particlesRefForLogging.current.current);
+    console.log("DischargeAnimation useEffect: particleDataReady", particleDataReady);
+    // Log other refs as needed
 
-    // Only proceed if active, elements exist, and particles are ready
-    if (!isActive || !particlesReady || !firingPinRef.current || !primerRef.current ||
-        !flashRef.current || !propellantRef.current) {
+    // Only proceed if active, elements exist, and particle data is ready
+    if (!isActive || !particleDataReady || !firingPinRef.current || !primerRef.current ||
+        !flashRef.current || !propellantRef.current || !containerRef.current ) { // Added containerRef check for animateParticles
       return;
     }
     
-    // Get particles from ref
-    const particles = particlesRef.current;
-    if (!particles) return;
+    const currentParticleData = particleDataRef.current;
+    if (!currentParticleData) return;
     
     // Store the phase change function to avoid closure issues
     const phaseChangeFn = onPhaseChange;
@@ -84,11 +135,17 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       paused: true,
       onComplete: () => {
         console.log('DischargeAnimation GSAP: Timeline completed');
-        if (phaseChangeFn) phaseChangeFn(4); // Final phase
+        if (phaseChangeFn) phaseChangeFn(ANIMATION_PHASES.COMPLETE); 
       }
     });
+
+    // Phase 1: Heat Buildup
+    tl.add(animateHeatBuildup(containerRef, primerRef, () => {
+      if (phaseChangeFn) phaseChangeFn(ANIMATION_PHASES.HEAT_BUILDUP);
+    }));
     
-    // 1. Firing pin strikes primer
+    // Phase 2: Discharge Sequence (Firing Pin, Primer, Flash, Propellant)
+    // 2.1. Firing pin strikes primer
     tl.to(firingPinRef.current, {
       x: 0,
       y: 0,
@@ -97,13 +154,14 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       onStart: () => console.log('DischargeAnimation GSAP: Firing pin animation started'),
       onComplete: () => {
         console.log('DischargeAnimation GSAP: Firing pin animation completed');
-        if (phaseChangeFn) phaseChangeFn(1);
+        // This is now part of the DISCHARGE phase
       }
     })
     
     // 2. Primer deforms and flash appears
     .to(primerRef.current, {
-      fill: '#ff6600',
+      fill: '#ff6600', // Reset fill after heat buildup
+      filter: 'none', // Reset filter after heat buildup
       scale: 1.1,
       duration: 0.1,
       ease: 'power2.out',
@@ -120,7 +178,7 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       onStart: () => console.log('DischargeAnimation GSAP: Flash animation started'),
       onComplete: () => {
         console.log('DischargeAnimation GSAP: Flash animation completed');
-        if (phaseChangeFn) phaseChangeFn(2);
+        if (phaseChangeFn) phaseChangeFn(ANIMATION_PHASES.DISCHARGE);
       }
     }, '-=0.05')
     
@@ -132,64 +190,24 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
       onStart: () => console.log('DischargeAnimation GSAP: Propellant animation started'),
       onComplete: () => console.log('DischargeAnimation GSAP: Propellant animation completed'),
     }, '-=0.1')
-    
-    // 5. Particles start forming and dispersing
-    .to(particles, {
-      opacity: 1,
-      scale: 1,
-      duration: 0.2,
-      stagger: 0.01,
-      ease: 'power1.out',
-      onStart: () => {
-        console.log('DischargeAnimation GSAP: Particles initial animation started', particles.length, "particles should become visible.");
-      },
-      onComplete: () => {
-        console.log("DischargeAnimation GSAP: Particle initial animation complete, moving to dispersion phase.");
-        if (phaseChangeFn) phaseChangeFn(3);
+
+    // Phase 3: Particle Dispersion
+    // 2.5. Trigger widespread particle animation using the new system
+    .call(() => {
+      if (currentParticleData && containerRef.current) {
+        console.log('DischargeAnimation GSAP: Calling animateParticles');
+        // Clean up any previous particle container first
+        if (widespreadParticleEffectsContainerRef.current && widespreadParticleEffectsContainerRef.current.parentNode) {
+          widespreadParticleEffectsContainerRef.current.parentNode.removeChild(widespreadParticleEffectsContainerRef.current);
+        }
+        widespreadParticleEffectsContainerRef.current = animateParticles(currentParticleData, containerRef);
+        if (phaseChangeFn) phaseChangeFn(ANIMATION_PHASES.PARTICLE_DISPERSION);
+      } else {
+        console.warn("DischargeAnimation GSAP: Particle data or containerRef not available for animateParticles.");
       }
-    })
-    
-    // 6. Particles disperse with initial transformation (sparkling effect)
-    .to(particles, {
-      x: () => (Math.random() - 0.5) * 400, // Increased range for more dramatic dispersion
-      y: () => (Math.random() - 0.5) * 400, // Increased range for more dramatic dispersion
-      opacity: () => Math.random() * 0.6 + 0.4, // Higher minimum opacity for visibility
-      scale: () => Math.random() * 2 + 0.8, // Larger scale variation for sparkling effect
-      rotation: () => Math.random() * 360, // Add rotation for dynamic effect
-      duration: 0.8, // Slightly shorter duration for quicker movement
-      ease: 'power3.out',
-      onStart: () => {
-        console.log('DischargeAnimation GSAP: Dispersion animation started for', particles.length, "particles.");
-      },
-      onComplete: () => console.log('DischargeAnimation GSAP: Dispersion animation completed'),
-    }, '-=0.1')
-    
-    // 7. Simulate chemical transformation with color change (heat effect)
-    .to(particles, {
-      backgroundColor: (i) => i % 2 === 0 ? '#ff6347' : '#ff3300', // Simulate heat/oxidation
-      duration: 0.3,
-      stagger: 0.01,
-      ease: 'power1.in',
-      onStart: () => {
-        console.log('DischargeAnimation GSAP: Color transformation animation started for chemical heat effect.');
-      },
-      onComplete: () => console.log('DischargeAnimation GSAP: Color transformation animation completed'),
-    }, '+=0.2')
-    
-    // 8. Some particles fade out (simulating cooling/settling)
-    .to(particles, {
-      opacity: (i) => i % 3 === 0 ? 0 : Math.random() * 0.7 + 0.3,
-      duration: 0.5,
-      stagger: 0.01,
-      ease: 'power1.in',
-      onStart: () => {
-        console.log('DischargeAnimation GSAP: Cooling/settling animation started, some particles fading out.');
-      },
-      onComplete: () => console.log('DischargeAnimation GSAP: Cooling/settling animation completed'),
-    }, '+=0.5');
+    }, [], ">-0.1"); // Changed null to [] for params, Adjust timing relative to propellant ignition if needed
     
     // Play the animation
-    console.log("DischargeAnimation: GSAP timeline about to play. Animating particles:", particles); // Enhanced log
     console.log('DischargeAnimation GSAP: Playing timeline');
     tl.play();
     
@@ -197,23 +215,37 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
     return () => {
       console.log('DischargeAnimation useEffect: GSAP timeline cleanup');
       tl.kill();
+      // Cleanup widespread particle container on unmount or effect re-run
+      if (widespreadParticleEffectsContainerRef.current && widespreadParticleEffectsContainerRef.current.parentNode) {
+        console.log("DischargeAnimation useEffect cleanup: Removing widespread particle container");
+        widespreadParticleEffectsContainerRef.current.parentNode.removeChild(widespreadParticleEffectsContainerRef.current);
+        widespreadParticleEffectsContainerRef.current = null;
+      }
     };
-  }, [isActive, particlesReady, onPhaseChange]); // Include onPhaseChange in dependencies
+  }, [isActive, particleDataReady, onPhaseChange]); // Dependencies updated
   
   // Activate the animation
   const activate = () => {
     console.log("DischargeAnimation: activate() called");
     setIsActive(true);
-    if (onPhaseChange) onPhaseChange(0); // Initial phase
+    if (onPhaseChange) onPhaseChange(ANIMATION_PHASES.IDLE); 
   };
   
   // Reset the animation
   const reset = () => {
     console.log("DischargeAnimation: reset() called");
     setIsActive(false);
-    setParticlesReady(false); // Reset particles ready state
-    particlesRef.current = null; // Clear particles ref
-    if (onPhaseChange) onPhaseChange(0);
+    setParticleDataReady(false); // Reset particle data ready state
+    particleDataRef.current = null; // Clear particle data
+    
+    // Clean up widespread particle container
+    if (widespreadParticleEffectsContainerRef.current && widespreadParticleEffectsContainerRef.current.parentNode) {
+      console.log("DischargeAnimation reset: Removing widespread particle container");
+      widespreadParticleEffectsContainerRef.current.parentNode.removeChild(widespreadParticleEffectsContainerRef.current);
+      widespreadParticleEffectsContainerRef.current = null;
+    }
+
+    if (onPhaseChange) onPhaseChange(ANIMATION_PHASES.IDLE);
   };
   
   // Expose methods to parent component
@@ -319,11 +351,12 @@ const DischargeAnimation = forwardRef<DischargeAnimationRef, DischargeAnimationP
         </g>
       </svg>
       
-      {/* Particle System */}
+      {/* Particle System now only generates data */}
       <ParticleSystem 
         active={isActive} 
-        count={50} 
-        onParticlesCreated={handleParticlesCreated} 
+        count={150} // Increased count for more dynamic effect
+        onParticlesCreated={handleParticlesCreated}
+        // origin prop could be passed here if ParticleSystem needs dynamic origin from DischargeAnimation
       />
     </div>
   );
