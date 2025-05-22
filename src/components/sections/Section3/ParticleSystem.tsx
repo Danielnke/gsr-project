@@ -56,7 +56,6 @@ const createParticles = (
   originX: number = 0, // Default origin if not specified (e.g. center of a relative container)
   originY: number = 0  // Default origin if not specified
 ): Particle[] => {
-  console.log('ParticleSystem: createParticles called. Count:', count, 'Origin:', originX, originY);
   const particleData: Particle[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -76,7 +75,6 @@ const createParticles = (
       decay: 0.95 + Math.random() * 0.04, // Varied decay rate (0.95 - 0.99)
     });
   }
-  console.log("ParticleSystem: Created particle data array:", particleData.length, "particles");
   return particleData;
 };
 
@@ -172,7 +170,6 @@ export const animateParticles = (
       }
     });
   });
-  console.log("animateParticles: Animation started for", particlesData.length, "particles in new container.");
   return particleEffectsContainer; // Return the container for cleanup
 };
 
@@ -192,17 +189,13 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
   const componentRef = useRef<HTMLDivElement>(null); 
   
   useEffect(() => {
-    console.log('ParticleSystem: useEffect triggered. active:', active);
-
     if (active) {
-      console.log("ParticleSystem: Becoming active, creating particle data.");
       // For now, createParticles uses a default origin (0,0) or what's passed.
       // If ParticleSystem is always a child of DischargeAnimation and should use its center,
       // DischargeAnimation would need to calculate its center and pass it as 'origin'.
       // For this refactor, we'll assume origin is passed or defaults appropriately for now.
       const particles = createParticles(count, origin.x, origin.y);
       if (onParticlesCreated) {
-        console.log("ParticleSystem: Calling onParticlesCreated with particle data:", particles.length);
         onParticlesCreated(particles);
       }
       // No direct DOM manipulation or cleanup here for particles, as that's handled by animateParticles
