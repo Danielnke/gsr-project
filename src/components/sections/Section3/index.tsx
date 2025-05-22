@@ -85,7 +85,7 @@ const Section3_Discharge: React.FC = () => {
           </p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
+        <div className="flex flex-col md:flex-row gap-8 md:items-start justify-center"> {/* Changed items-center to md:items-start */}
           {/* Animation Component */}
           <DischargeAnimation 
             ref={animationRef}
