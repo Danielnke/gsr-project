@@ -36,47 +36,37 @@ const Section3_Discharge: React.FC = () => {
   
   // Set up scroll trigger for the animation
   useEffect(() => {
-    console.log("Section3_Discharge: Component did mount and useEffect is running.");
-
     // Temporarily simplified to debug if this useEffect runs at all
     if (!sectionRef.current || !animationRef.current) {
-      console.log("Section3_Discharge: Refs not available on mount. sectionRef:", sectionRef.current, "animationRef:", animationRef.current);
       return;
     }
-    console.log("Section3_Discharge: Refs ARE available. Setting up ScrollTrigger.");
 
     const st = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top 60%',
       end: 'bottom 40%',
       onEnter: () => {
-        console.log("Section3_Discharge: ScrollTrigger onEnter. animationPlayed:", animationPlayed);
         if (!animationPlayed && animationRef.current) {
-          console.log("Section3_Discharge: Activating animation.");
           animationRef.current.activate();
           setAnimationPlayed(true);
         }
       },
       onLeaveBack: () => {
-        console.log("Section3_Discharge: ScrollTrigger onLeaveBack. animationPlayed:", animationPlayed);
         if (animationPlayed && animationRef.current) {
-          console.log("Section3_Discharge: Resetting animation.");
           animationRef.current.reset();
           setAnimationPlayed(false);
         }
       }
     });
-    console.log("Section3_Discharge: ScrollTrigger instance created:", st);
 
     return () => {
-      console.log("Section3_Discharge: Cleaning up ScrollTrigger.");
       st.kill();
     };
   }, [animationPlayed, animationRef]); // Added animationPlayed and animationRef
 
   return (
     <Section id="discharge" className="relative">
-      <div ref={sectionRef} className="max-w-6xl mx-auto w-full">
+      <div ref={sectionRef} className="max-w-6xl mx-auto w-full pb-24">
         {/* Heading and Description */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4">The Discharge Process</h2>
