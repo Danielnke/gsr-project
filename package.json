@@ -16,7 +16,7 @@
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",
     "lucide-react": "^0.511.0",
-    "next": "15.3.2",
+    "next": "15.3.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@tsparticles/react": "^3.0.0",
@@ -38,7 +38,11 @@
   },
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["react", "react-dom", "@types/react"]
+      "ignoreMissing": [
+        "react",
+        "react-dom",
+        "@types/react"
+      ]
     }
   },
   "engines": {
